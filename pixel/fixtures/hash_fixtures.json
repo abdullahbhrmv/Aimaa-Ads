@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "description": "Ground truth for AimaaPixel advanced matching hash normalization. JS SDK (pixel/src/hash.js) and Python backend (pixel/services.py::normalize_for_hash) MUST produce identical outputs for each case. Any mismatch is a parity bug; halt.",
+  "algorithm": "SHA-256 hex, lowercase, 64 chars",
+  "unicode_normalization": "NFC applied after type-specific normalization, before hashing",
+  "rules": {
+    "email": "trim + lowercase (default locale — NOT locale-aware). No +tag or dot stripping.",
+    "phone": "strip all non-ASCII-digit characters via [^0-9]. Unicode digits (Arabic, Bengali, Devanagari, ...) REMOVED — do not treat as digits.",
+    "name": "trim + lowercase (default locale). Turkish İ → 'i' + combining dot U+0307 is intentional; locale-aware variants would break parity.",
+    "external_id": "trim only; CASE PRESERVED. Advertiser provides canonical identifier.",
+    "empty_policy": "If normalized value is empty, hash = empty string (NOT SHA-256 of empty). Signals 'no value provided'.",
+    "gmail_plus_tag": "NOT stripped. Advertiser may pre-process user+tag@gmail.com themselves if wanted."
+  },
+  "cases": {
+    "email": [
+      {
+        "name": "simple",
+        "raw": "user@example.com",
+        "normalized": "user@example.com",
+        "hash": "b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514"
+      },
+      {
+        "name": "trim_and_lowercase",
+        "raw": "  John.Doe@Gmail.COM  ",
+        "normalized": "john.doe@gmail.com",
+        "hash": "375320dd9ae7ed408002f3768e16cb5f28c861062fd50dff9a3bff62e9dce4ef"
+      },
+      {
+        "name": "plus_tag_preserved",
+        "raw": "user+tag@example.com",
+        "normalized": "user+tag@example.com",
+        "hash": "80e9aafb240be8b158f55455c7b056ac48d1cb9fe4d0bd7e244e0f26547d7dce"
+      },
+      {
+        "name": "internal_dots_preserved",
+        "raw": "a.b.c@example.com",
+        "normalized": "a.b.c@example.com",
+        "hash": "1e5f0572ff8e1326e0b1c5ba345b5a61a9aa56d091b4fdbafc2e898644e4ab11"
+      },
+      {
+        "name": "unicode_local_part",
+        "raw": "Айдин@example.com",
+        "normalized": "айдин@example.com",
+        "hash": "b0c6360396420a10ea683fdf3a2182ad81022d760f9d6a844cbe6fbf13891def"
+      },
+      {
+        "name": "invalid_missing_at_sign",
+        "raw": "not-an-email",
+        "normalized": "not-an-email",
+        "hash": "eba038945cb806ba629b6f4524d54ac7dddd3c3f46bcb12b19d9cf727aa4bdf5"
+      },
+      {
+        "name": "whitespace_only",
+        "raw": "   ",
+        "normalized": "",
+        "hash": ""
+      },
+      {
+        "name": "empty_string",
+        "raw": "",
+        "normalized": "",
+        "hash": ""
+      }
+    ],
+    "phone": [
+      {
+        "name": "uzbek_with_plus_parens_dashes",
+        "raw": "+998 (90) 123-45-67",
+        "normalized": "998901234567",
+        "hash": "172443bcef1ac1d3905d3ff30a9b7c1d188a583c54f24ab8327a91f82054f2d3"
+      },
+      {
+        "name": "uzbek_no_separators",
+        "raw": "998901234567",
+        "normalized": "998901234567",
+        "hash": "172443bcef1ac1d3905d3ff30a9b7c1d188a583c54f24ab8327a91f82054f2d3"
+      },
+      {
+        "name": "uzbek_dashes_only",
+        "raw": "998-90-123-45-67",
+        "normalized": "998901234567",
+        "hash": "172443bcef1ac1d3905d3ff30a9b7c1d188a583c54f24ab8327a91f82054f2d3"
+      },
+      {
+        "name": "arabic_indic_digit_stripped",
+        "raw": "+998901234567٠",
+        "normalized": "998901234567",
+        "hash": "172443bcef1ac1d3905d3ff30a9b7c1d188a583c54f24ab8327a91f82054f2d3"
+      },
+      {
+        "name": "bengali_digit_stripped",
+        "raw": "+998901234567৬",
+        "normalized": "998901234567",
+        "hash": "172443bcef1ac1d3905d3ff30a9b7c1d188a583c54f24ab8327a91f82054f2d3"
+      },
+      {
+        "name": "devanagari_digit_stripped",
+        "raw": "+998901234567१",
+        "normalized": "998901234567",
+        "hash": "172443bcef1ac1d3905d3ff30a9b7c1d188a583c54f24ab8327a91f82054f2d3"
+      },
+      {
+        "name": "non_numeric_only",
+        "raw": "abc-def",
+        "normalized": "",
+        "hash": ""
+      },
+      {
+        "name": "whitespace_only",
+        "raw": "   ",
+        "normalized": "",
+        "hash": ""
+      },
+      {
+        "name": "empty_string",
+        "raw": "",
+        "normalized": "",
+        "hash": ""
+      }
+    ],
+    "name": [
+      {
+        "name": "simple_latin",
+        "raw": "  John  ",
+        "normalized": "john",
+        "hash": "96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a"
+      },
+      {
+        "name": "uzbek_cyrillic",
+        "raw": "Айдин",
+        "normalized": "айдин",
+        "hash": "1c0ee3c8a9f21db084f3b9d3157c67ef2123669d05ccdc3f059f29efbdde35d1"
+      },
+      {
+        "name": "turkish_capital_i_dot",
+        "raw": "İZMİR",
+        "normalized": "i̇zmi̇r",
+        "hash": "e6a407b5aebf2ba31a76a443be7467e24c6578a13df7e9ae7175b8ceace8f4a1"
+      },
+      {
+        "name": "nfc_precomposed_accent",
+        "raw": "Café",
+        "normalized": "café",
+        "hash": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e"
+      },
+      {
+        "name": "nfd_decomposed_accent_normalized",
+        "raw": "café",
+        "normalized": "café",
+        "hash": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e"
+      },
+      {
+        "name": "whitespace_only",
+        "raw": "   ",
+        "normalized": "",
+        "hash": ""
+      },
+      {
+        "name": "empty_string",
+        "raw": "",
+        "normalized": "",
+        "hash": ""
+      }
+    ],
+    "external_id": [
+      {
+        "name": "alphanumeric_case_preserved",
+        "raw": "USR_12345",
+        "normalized": "USR_12345",
+        "hash": "e094b59c2a6f12706ae250e4e722c9ffc596a59f499461b052a90b4e9fdd04bf"
+      },
+      {
+        "name": "lowercase_distinct",
+        "raw": "usr_12345",
+        "normalized": "usr_12345",
+        "hash": "cd96e7539e9d429010e9d17f7efcc26705a27008057dcc8e2d2fdb67e798f90a"
+      },
+      {
+        "name": "trim_only_case_preserved",
+        "raw": "  USR_ABC  ",
+        "normalized": "USR_ABC",
+        "hash": "0333051018a304d7ac70d2eaa894e285a71924fd03f3636030e48e5277d473e6"
+      },
+      {
+        "name": "whitespace_only",
+        "raw": "   ",
+        "normalized": "",
+        "hash": ""
+      },
+      {
+        "name": "empty_string",
+        "raw": "",
+        "normalized": "",
+        "hash": ""
+      }
+    ]
+  }
+}

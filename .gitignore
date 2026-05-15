@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*.so
+.env
+.env.local
+*.env.local
+backend/.env
+bot/.env
+venv/
+.venv/
+.pytest_cache/
+node_modules/
+dist/
+build/
+.vite/
+*.egg-info/
+.DS_Store
+*.sqlite3
+*.log
+media/
+staticfiles/
+.idea/
+.vscode/
+.claude/
+
+# Editorial / marketing content (local-only)
+content-plans/

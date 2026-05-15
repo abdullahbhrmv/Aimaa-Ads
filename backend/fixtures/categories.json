@@ -1,0 +1,17 @@
+[
+  {"model": "channels_app.category", "pk": 1, "fields": {"name_uz": "Yangiliklar", "name_ru": "Новости", "slug": "news", "icon": "📰", "is_active": true}},
+  {"model": "channels_app.category", "pk": 2, "fields": {"name_uz": "Texnologiya", "name_ru": "Технологии", "slug": "tech", "icon": "💻", "is_active": true}},
+  {"model": "channels_app.category", "pk": 3, "fields": {"name_uz": "Biznes", "name_ru": "Бизнес", "slug": "business", "icon": "💼", "is_active": true}},
+  {"model": "channels_app.category", "pk": 4, "fields": {"name_uz": "Ta'lim", "name_ru": "Образование", "slug": "education", "icon": "📚", "is_active": true}},
+  {"model": "channels_app.category", "pk": 5, "fields": {"name_uz": "Ko'ngilochar", "name_ru": "Развлечения", "slug": "entertainment", "icon": "🎬", "is_active": true}},
+  {"model": "channels_app.category", "pk": 6, "fields": {"name_uz": "Sport", "name_ru": "Спорт", "slug": "sport", "icon": "⚽", "is_active": true}},
+  {"model": "channels_app.category", "pk": 7, "fields": {"name_uz": "Kripto & Moliya", "name_ru": "Крипто & Финансы", "slug": "crypto-finance", "icon": "💰", "is_active": true}},
+  {"model": "channels_app.category", "pk": 8, "fields": {"name_uz": "Savdo & Chegirmalar", "name_ru": "Скидки & Акции", "slug": "deals", "icon": "🛍️", "is_active": true}},
+  {"model": "channels_app.category", "pk": 9, "fields": {"name_uz": "Ish e'lonlari", "name_ru": "Вакансии", "slug": "jobs", "icon": "👔", "is_active": true}},
+  {"model": "channels_app.category", "pk": 10, "fields": {"name_uz": "Avtomobil", "name_ru": "Авто", "slug": "auto", "icon": "🚗", "is_active": true}},
+  {"model": "channels_app.category", "pk": 11, "fields": {"name_uz": "Go'zallik & Sog'liq", "name_ru": "Красота & Здоровье", "slug": "health-beauty", "icon": "💆", "is_active": true}},
+  {"model": "channels_app.category", "pk": 12, "fields": {"name_uz": "Ovqat & Restoran", "name_ru": "Еда & Рестораны", "slug": "food", "icon": "🍕", "is_active": true}},
+  {"model": "channels_app.category", "pk": 13, "fields": {"name_uz": "Sayohat", "name_ru": "Путешествия", "slug": "travel", "icon": "✈️", "is_active": true}},
+  {"model": "channels_app.category", "pk": 14, "fields": {"name_uz": "O'yinlar", "name_ru": "Игры", "slug": "games", "icon": "🎮", "is_active": true}},
+  {"model": "channels_app.category", "pk": 15, "fields": {"name_uz": "Boshqa", "name_ru": "Другое", "slug": "other", "icon": "📁", "is_active": true}}
+]
