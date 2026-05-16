@@ -250,12 +250,31 @@ def test_install_snippet_creates_pixel_if_missing(advertiser_factory, settings):
 # --- Pixel script placeholder -----------------------------------------------
 
 
-def test_pixel_script_returns_501_placeholder():
+def test_pixel_script_returns_501_when_bundle_missing(monkeypatch, tmp_path):
+    """Build edilmemiş (dist yok) → 501 + placeholder, no-store."""
+    from pixel import views
+
+    monkeypatch.setattr(views, "_PIXEL_DIST_PATH", tmp_path / "missing.js")
     resp = Client().get(SCRIPT_URL)
     assert resp.status_code == 501
     assert resp["Content-Type"].startswith("application/javascript")
     assert resp["Cache-Control"] == "no-store"
-    assert b"not implemented" in resp.content.lower()
+    assert b"not yet built" in resp.content.lower()
+
+
+def test_pixel_script_serves_dist_when_present(monkeypatch, tmp_path):
+    """Build edilmiş dist mevcutsa view dosyayı 200 + JS body olarak serve eder."""
+    from pixel import views
+
+    dist = tmp_path / "pixel.js"
+    dist.write_bytes(b"/* fake bundle */\nwindow.aimaa=function(){};\n")
+    monkeypatch.setattr(views, "_PIXEL_DIST_PATH", dist)
+
+    resp = Client().get(SCRIPT_URL)
+    assert resp.status_code == 200
+    assert resp["Content-Type"].startswith("application/javascript")
+    assert b"fake bundle" in resp.content
+    assert "Cache-Control" in resp
 
 
 # --- Throttle (isolation-friendly test) ------------------------------------

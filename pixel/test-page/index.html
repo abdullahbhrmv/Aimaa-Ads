@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>AimaaPixel E2E Test</title>
+
+  <!--
+    Replace REPLACE_WITH_REAL_UUID with the pixel_id printed by:
+        cd backend && source venv/bin/activate
+        python manage.py create_test_pixel
+  -->
+  <script src="../dist/pixel.js"
+          data-pixel-id="REPLACE_WITH_REAL_UUID"
+          data-aimaa-debug></script>
+
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif;
+           max-width: 720px; margin: 40px auto; padding: 20px; color: #1f2937; }
+    h1 { margin-bottom: 6px; }
+    button { padding: 10px 18px; margin: 4px; font-size: 14px;
+             cursor: pointer; border-radius: 6px; border: 1px solid #d1d5db;
+             background: #fff; }
+    button:hover { background: #f3f4f6; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 6px;
+          max-height: 320px; overflow: auto; font-size: 13px; }
+    .status { padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+    .status.ok  { background: #d4edda; color: #155724; }
+    .status.err { background: #f8d7da; color: #721c24; }
+    .meta { color: #6b7280; font-size: 13px; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>AimaaPixel E2E Test</h1>
+  <p class="meta">
+    Sayfa açıldığında otomatik <code>PageView</code> event atılır
+    (snippet'in seed ettiği <code>data-pixel-id</code> attribute'undan).
+    DevTools → Network → "event" filter ile gözlemleyin.
+  </p>
+
+  <div id="init-status"></div>
+
+  <h3>Event Butonları</h3>
+  <button id="purchase-btn">Test Purchase Event (250 000 UZS)</button>
+  <button id="lead-btn">Test Lead Event</button>
+  <button id="custom-btn">Test Custom Event</button>
+  <button id="advanced-btn">Test Advanced Matching (hashed email)</button>
+  <button id="clear-log">Logu Temizle</button>
+
+  <h3>Event Log</h3>
+  <pre id="log"></pre>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const log = (msg) => {
+      const time = new Date().toLocaleTimeString();
+      logEl.textContent += `[${time}] ${msg}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    };
+
+    const statusEl = document.getElementById('init-status');
+    const sdkReady = !!(window.AimaaPixel && window.aimaa);
+    if (sdkReady) {
+      statusEl.className = 'status ok';
+      statusEl.textContent = '✓ AimaaPixel yüklendi (window.aimaa + window.AimaaPixel).';
+      log('AimaaPixel global tanımlı, otomatik PageView gönderildi.');
+    } else {
+      statusEl.className = 'status err';
+      statusEl.textContent = '✗ AimaaPixel YÜKLENMEDİ. pixel/dist/pixel.js build edildi mi? (npm run build)';
+      log('HATA: window.AimaaPixel veya window.aimaa bulunamadı.');
+    }
+
+    document.getElementById('purchase-btn').onclick = () => {
+      if (!sdkReady) return log('SDK yok, abort.');
+      aimaa('track', 'Purchase', {
+        value: 250000,
+        currency: 'UZS',
+      });
+      log('Purchase event yollandı (value=250000 UZS).');
+    };
+
+    document.getElementById('lead-btn').onclick = () => {
+      if (!sdkReady) return log('SDK yok, abort.');
+      aimaa('track', 'Lead');
+      log('Lead event yollandı.');
+    };
+
+    document.getElementById('custom-btn').onclick = () => {
+      if (!sdkReady) return log('SDK yok, abort.');
+      aimaa('track', 'CustomDemoEvent', {
+        action: 'demo_click',
+        category: 'e2e_test',
+      });
+      log('Custom event "CustomDemoEvent" yollandı.');
+    };
+
+    document.getElementById('advanced-btn').onclick = () => {
+      if (!sdkReady) return log('SDK yok, abort.');
+      // Raw PII passed to SDK; SDK hashes client-side before POST.
+      AimaaPixel.track('Lead', {
+        email: 'jane.doe@example.com',
+        phone: '+998 90 123 45 67',
+        first_name: 'Jane',
+        last_name: 'Doe',
+        external_id: 'crm_user_42',
+      });
+      log('Advanced matching Lead event yollandı (PII hashed client-side).');
+    };
+
+    document.getElementById('clear-log').onclick = () => { logEl.textContent = ''; };
+  </script>
+</body>
+</html>

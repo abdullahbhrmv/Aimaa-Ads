@@ -239,23 +239,44 @@ def _render_install_snippet(pixel_id: str, base_url: str) -> str:
     )
 
 
+_PIXEL_DIST_PATH = settings.BASE_DIR.parent / "pixel" / "dist" / "pixel.js"
+
+
 @csrf_exempt
 def pixel_script_view(request):
-    """SDK JS dosyası (Adım 1 tamamlanınca gerçek dist'ten serve edilir).
+    """SDK JS dosyasını serve et.
 
-    Şu an placeholder — 501 Not Implemented. Adım 1'de
-    `pixel/dist/aimaa-pixel.min.js` oluşturulduğunda bu view'daki body
-    dist'i okuyup `Content-Type: application/javascript` ile serve eder.
+    Build edilmiş `pixel/dist/pixel.js` varsa `application/javascript` + 200
+    döner. Yoksa 501 + placeholder (geliştirici daha `npm run build`
+    çalıştırmamış demektir).
+
+    Cache: DEBUG=True iken no-cache (build sonrası anında yeni versiyon),
+    DEBUG=False iken 5 dakika public cache. Production'da nginx / CDN bu
+    URL'i daha agresif cache'leyebilir.
     """
-    body = (
-        "/* Aimaa Pixel SDK — not implemented yet (FAZ 5 Adım 1). "
-        "This placeholder returns 501; SDK dist build pending. */\n"
-        "console.warn('aimaa-pixel: SDK bundle not yet deployed');\n"
-    )
+    try:
+        body = _PIXEL_DIST_PATH.read_bytes()
+    except (FileNotFoundError, OSError):
+        placeholder = (
+            "/* Aimaa Pixel SDK — bundle not built. "
+            "Run `npm run build` in pixel/ to produce dist/pixel.js. */\n"
+            "console.warn('aimaa-pixel: SDK bundle not yet built');\n"
+        )
+        response = HttpResponse(
+            placeholder,
+            content_type="application/javascript; charset=utf-8",
+            status=501,
+        )
+        response["Cache-Control"] = "no-store"
+        return response
+
     response = HttpResponse(
         body,
         content_type="application/javascript; charset=utf-8",
-        status=501,
+        status=200,
     )
-    response["Cache-Control"] = "no-store"
+    if settings.DEBUG:
+        response["Cache-Control"] = "no-cache"
+    else:
+        response["Cache-Control"] = "public, max-age=300"
     return response
