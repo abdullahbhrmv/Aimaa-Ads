@@ -25,3 +25,7 @@ staticfiles/
 
 # Editorial / marketing content (local-only)
 content-plans/
+
+# Pixel SDK build output (regenerated via `npm run build` in pixel/)
+pixel/dist/
+pixel/node_modules/

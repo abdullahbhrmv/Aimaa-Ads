@@ -2,12 +2,17 @@
   "name": "aimaa-pixel",
   "version": "0.1.0",
   "private": true,
-  "description": "AimaaPixel — web conversion tracking SDK (FAZ 5). Adım 0: hash contract only.",
+  "description": "AimaaPixel — web conversion tracking SDK. JS bundle for browsers; hash parity with backend Python.",
   "engines": {
     "node": ">=18"
   },
   "main": "src/hash.js",
   "scripts": {
-    "test": "node test/hash.test.js"
+    "test": "node test/hash.test.js",
+    "build": "node build.js",
+    "build:watch": "node build.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
   }
 }
