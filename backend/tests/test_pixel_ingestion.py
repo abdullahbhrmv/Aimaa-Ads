@@ -101,6 +101,29 @@ def test_ingest_unknown_pixel_id_returns_404():
     assert resp.status_code == 404
 
 
+def test_ingest_malformed_pixel_id_returns_404_not_500():
+    """Garbage in pixel_id (placeholder, junk, bot probe) maps to 404, not 500.
+
+    UUIDField.to_python() raises Django's ValidationError for non-UUID input;
+    _resolve_pixel must treat that as "not found" so misconfigured snippets
+    and crawlers can't spam 500-error logs.
+    """
+    resp = Client().options(
+        INGEST_URL + "?pixel_id=REPLACE_WITH_REAL_UUID",
+        HTTP_ORIGIN="http://localhost:8080",
+    )
+    assert resp.status_code == 200  # preflight returns 200 with no CORS hdr
+
+    resp = Client().post(
+        INGEST_URL + "?pixel_id=not-a-uuid",
+        _payload("not-a-uuid"),
+        content_type="application/json",
+        HTTP_ORIGIN="https://example.com",
+    )
+    assert resp.status_code == 404
+    assert resp.json()["error"] == "pixel_not_found"
+
+
 def test_ingest_disallowed_origin_returns_403(pixel_factory):
     pixel = pixel_factory(allowed_domains=["example.com"])
     resp = Client().post(

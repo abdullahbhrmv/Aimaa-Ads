@@ -25,6 +25,7 @@ from __future__ import annotations
 import logging
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import permissions, status
@@ -152,7 +153,11 @@ class PixelEventIngestView(APIView):
             return None
         try:
             return PixelInstallation.objects.get(pixel_id=pixel_id)
-        except (PixelInstallation.DoesNotExist, ValueError):
+        except (PixelInstallation.DoesNotExist, ValueError, ValidationError):
+            # UUIDField raises ValidationError (not ValueError) for malformed
+            # input. Treat any unparseable / unknown pixel_id as "not found"
+            # rather than letting a 500 escape — bots and stale snippets will
+            # otherwise spam error logs.
             return None
 
 

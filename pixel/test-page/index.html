@@ -5,11 +5,16 @@
   <title>AimaaPixel E2E Test</title>
 
   <!--
+    SDK is served by the Django backend at /api/pixel/p.js (which reads
+    pixel/dist/pixel.js from disk). Cross-origin <script> loads don't
+    need CORS, only the SDK's fetch() does — that's whitelisted via
+    PixelInstallation.allowed_domains = ['localhost', '127.0.0.1'].
+
     Replace REPLACE_WITH_REAL_UUID with the pixel_id printed by:
         cd backend && source venv/bin/activate
         python manage.py create_test_pixel
   -->
-  <script src="../dist/pixel.js"
+  <script src="http://localhost:8000/api/pixel/p.js"
           data-pixel-id="REPLACE_WITH_REAL_UUID"
           data-aimaa-debug></script>
 

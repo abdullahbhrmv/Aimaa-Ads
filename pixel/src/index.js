@@ -159,9 +159,18 @@ async function track(eventName, params) {
 
     log('track →', eventName, payload);
 
+    // pixel_id is also embedded in the body, but the CORS preflight (OPTIONS)
+    // arrives before the body — backend resolves the pixel from the query
+    // string at that stage to decide whether to echo Access-Control-Allow-
+    // Origin. Without the query parameter the preflight returns 200 with no
+    // CORS headers, and the browser silently drops the POST.
+    const url = state.endpoint
+        + (state.endpoint.indexOf('?') === -1 ? '?' : '&')
+        + 'pixel_id=' + encodeURIComponent(state.pixelId);
+
     try {
         // Prefer fetch with keepalive so events sent during unload still fly.
-        await fetch(state.endpoint, {
+        await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
