@@ -51,7 +51,7 @@ aimaa-ads/
 
 ---
 
-## 🚀 Kurulum
+## Kurulum
 
 ### Ön Gereksinimler
 
@@ -72,7 +72,7 @@ brew services start redis
 
 ---
 
-## 📦 1. Backend Kurulumu
+## 1. Backend Kurulumu
 
 ### 1.1. Veritabanı Oluştur
 
